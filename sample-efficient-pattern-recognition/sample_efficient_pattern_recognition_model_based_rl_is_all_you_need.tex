@@ -1,0 +1,201 @@
+%:
+\documentclass[11pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
+%\geometry{landscape}                		% Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
+								% TeX will automatically convert eps --> pdf in pdflatex		
+\usepackage{amssymb}
+\usepackage{diagbox}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{enumerate}
+\theoremstyle{definition}
+\newtheorem*{defn}{Definition}
+\newtheorem*{prop}{Proposition}
+\newtheorem*{example}{Example}
+\newtheorem*{thm}{Theorem}
+\newtheorem*{corol}{Corollary}
+\newtheorem{ex}{Exercise}[section]
+{\theoremstyle{plain}
+\newtheorem*{rmk}{Remark}
+\newtheorem*{rmks}{Remarks}
+\newtheorem*{lt}{Last time}
+}
+\newtheorem*{lem}{Lemma}
+\usepackage{color}
+\usepackage{CJK}
+\title{Sample-Efficient Pattern Recognition: Model-Based Reinforcement Learning is All You Need}
+\author{Xiyu Zhai}
+\date{}							% Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+\tableofcontents
+\abstract{
+	We study pattern recognition by viewing it as a model-based reinforcement learning problem to gain minimize sample complexity. In fact, model-based reinforcement learning is actually a vehicle converting the inherent NP problem of pattern recognition to ML problem. We verify our theories on the MNIST dataset.
+}
+
+\section{Introduction}
+
+Deep learning has been very successful in the passing decade, especially for pattern recognition tasks like image classification. However, it's still far from human in terms of sample complexity. Hence we seek to understand what it takes to have minimal sample complexity for pattern recognition tasks, which can lead to better deep learning or more advanced form of AI.
+
+We shed light on these issues through rethinking machine learning setup. Typically, machine learning theory assumes no computational difficulty in inference, which in our views potentially misses important structures. We make a new PAC learning setup that takes into account nontrivial computational structure in inference, such that there is a tradeoff between sample complexity and computational complexity leading to nontrivial algorithms. 
+
+Our discussion is domain specific in nature. We specialise our theories for computer vision to study the case of shape classification, MNIST for example. We did experiments to verify the assumptions aligh perfectly with the dataset. This relates to Hinton's work on deformable models.
+
+\section{Related Work}
+
+\paragraph{Bayesian Model}
+
+\paragraph{Energy Model}
+
+\paragraph{Theoretical Computer Science}
+
+\paragraph{Reinforcement Learning}
+
+\section{Setup}
+
+Input space $\mathcal{X}$, output space $\mathcal{Y}$, a realizable hypothesis class $\mathcal{H}_0$, i.e. an a priori set containing functions from $X$ to $Y$.
+
+Note that we use $\mathcal{H}_0$ to denote that it's special. It's the minimal hypothesis class that is realizable based on a priori assumptions. We shall define more hypothesis classes because it's probably hard to work in the original $\mathcal{H}_0$.
+
+We assume that functions in $\mathcal{H}$ is computationally nontrivial. In this paper, we assume that there are sets $\mathcal{W}$ (world stone space) and $\mathcal{A}$ (action space) and a reward function $r: \mathcal{X}\times \mathcal{W}\times \mathcal{A}\times \mathcal{Y}\to \mathbb{R}$, then
+\begin{equation}
+	h_{w}(x):=\mathop{\text{argmax}}\limits_{y\in \mathcal{Y}}\sup_{a\in \mathcal{A}} r(x, w, c, y).
+\end{equation}
+
+if argmin gives more than one element, pick the one according to some predefined order.
+
+We assume $s$ is easy to compute, at least in $P$.
+
+\begin{rmk}
+	This can lead to NP problem (as commonly known by RL).
+
+	Suppose $\mathcal{Y} = \{\text{true}, \text{false}\}$, and that $r(x,w,a,\text{false})\equiv 0$, then $h_w(x)=\text{true}$ when
+	\begin{equation}
+		\sup_{a\in \mathcal{A}}r(x, w, a, \text{true}) > 0
+	\end{equation}
+
+	which is equivalent to
+	\begin{equation}
+		\exists a\in \mathcal{A}, r(x, w, a, \text{true}) > 0,
+	\end{equation}
+
+	which is in NP.
+
+	Pick a nice $s$, we can make $h_w$ NP-hard.
+
+	However, we wouldn't necessarily make it this hard, but harder than there could be a simple ``analytical'' solution for this so that learning is needed.
+\end{rmk}
+
+\section{Relaxation of Hypothesis Class}
+
+We can approximate $h_w$ by
+
+\begin{equation}
+	\tilde h_{w,\{c_1,\cdots,c_n\}}:=\mathop{\text{argmax}}\limits_{y\in \mathcal{Y}}\max_{i\in [n]} r(x, w, a_i(x), y).
+\end{equation}
+
+where $a_1,\cdots,a_n$ are policies $\mathcal{X}\to \mathcal{A}$, called action suggestors.
+
+Basically, we break a ML problem into learning a verifier as world model and then learning action suggestors. Learning verifier needs labeled samples, but learning action suggestors needs only unlabeled samples.
+
+\section{Learning Complexity}
+
+Suppose
+
+\section{Experiments on MNIST}
+
+
+ We claim our theories characterize exactly the MNIST dataset.
+
+\begin{example}[MNIST] Here we describe briefly a function in mathematical terms which we believe is the ground truth for the MNIST dataset. Details can be seen in appendix.
+
+We take the convention that the fill of the digits is white and the background is black.
+
+The image is represented by a $[0,1]$-valued $28\times 28$ matrix $I=(I_{ij})_{0\le i\le 27, 0\le j\le 27}$.
+
+\begin{itemize}
+	\item \textbf{digit one of the simplest kind}, which constitutes 95\% of all images of digit one.
+
+A typical image looks like this:
+
+[an image here]
+
+Think about how it's drawn. The person when writing down a digit one like this has an ideal version in mind, a straight line that is almost vertical. So take $\Gamma_1$ to be the set of straight lines with slopes satisfying some easy constraint. Then we should define $\mathfrak{s}(x;\gamma)$ for $\gamma\in \Gamma_1$ such that
+\begin{itemize}
+	\item for "most" points over $\gamma$, it's surrounded by white pixels;
+	\item for "most" non-white pixels, it's away from $\gamma$.
+\end{itemize}
+
+One choice could be
+\begin{equation}
+	\mathfrak{s}(x; \gamma)=a_1\int_{0}^1  \max_{(i,j)\in [27]\times[27]}1_{\|\gamma(t) - (i,j)\|_2 < \epsilon} I_{ij}dt
+	-
+	a_2\sum_{(i,j)\in [27]\times[27]} 1_{I_{ij}< 0.5}\text{dist}((i,j), \gamma)
+\end{equation}
+
+where $\epsilon$ is an appropriate small number and $a_1,a_2>0$ are appropriate coefficients.
+
+In fact the function applies when $\gamma$ is any path, not necessarily a straight line. Formally it is defined over the path space (without basepoint) $\Gamma= M([0,1], [0,1]^2)$.
+
+The dimensionality of the configuration space is 6, which can possibly be reduced to 5.
+
+\item \textbf{digit seven of the simplest kind}.
+
+A typical image looks like this:
+
+[an image here]
+
+Here we consider all continuous $\gamma:[0,2]\to [0,1]^2$ such that $\gamma|_{[0,1]}, \gamma|_{[1,2]}$ are straight line segments. Additionally, there should be some constraint on the positions of $\gamma(0), \gamma(1), \gamma(2)$ such that $\overline{\gamma(0)\gamma(1)}$ is very close to being horizontal, and $\overline{\gamma(1)\gamma(2)}$ should be roughly vertical downward.
+
+The score function $\mathfrak{s}$ is the same.
+
+The dimensionality of the configuration space is 6, which can actually be reduced to 5.
+
+\item \textbf{digit zero}.
+
+We consider smooth curves $\gamma:[0,L]\to [0,1]^2$ with arc length parametrization such that the mean curvature is always nonnegative, i.e.
+\begin{equation}
+	\|\gamma'(t)\|\equiv 1
+\end{equation}
+and
+\begin{equation}
+	\gamma''(t)\times \gamma'(t) \ge 0
+\end{equation}
+
+Additionally, we require that $\gamma(0)$ is very close to $\gamma(L)$.
+
+We should also require that $\gamma$ is nondegenerate, which can be characterized by isoperimetric inequality.
+
+All these $\gamma$ form $\Gamma_0$.
+
+And we still use the same score funtion $\mathfrak{s}$.
+
+\item \textbf{general case}. Fix a graph $G=(V,E)$. Give it a natural topological structure and identify each $e$ with $[0,1]$. For each $e\in E$, we give assign a $\sigma_e$ which is one of the following classes of curves:
+
+\begin{itemize}
+	\item nonconvex but not straight
+	\item nonconcave but not straight
+	\item straight.
+\end{itemize}
+
+We define the total space as
+\begin{equation}
+	\Omega_G = \left\{\gamma\in M(G, [0,1]^2): \forall e\in E, \gamma|_e\in \sigma_e\right\}.
+\end{equation}
+
+Then the configuration space $\Gamma_G$ is a subset of $\Omega_G$ such that it is given by a boolean function $s$ in the sense that
+\begin{equation}
+	1_{\Gamma_G}(\gamma)=s((\gamma(v))_{v\in V},((\gamma|_e'(0), \gamma|_e'(1), \text{dist}(\gamma|_e,\overline{\gamma|_e(0)\gamma|_e(1)})))_{e\in E})
+\end{equation}
+\end{itemize}
+\end{example}
+
+\section{Conclusion}
+
+\section{Future Work}
+
+\end{document}
